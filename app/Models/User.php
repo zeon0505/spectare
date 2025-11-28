@@ -3,14 +3,16 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasUuids;
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +23,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'is_blocked',
+        'blocked_at',
+        'blocked_by',
     ];
 
     /**
@@ -43,6 +49,50 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'blocked_at' => 'datetime',
+            'is_blocked' => 'boolean',
         ];
+    }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasManyThrough(Transaction::class, Booking::class);
+    }
+
+    public function blockedBy()
+    {
+        return $this->belongsTo(User::class, 'blocked_by');
+    }
+
+    public function isBlocked()
+    {
+        return $this->is_blocked;
+    }
+
+    public function hasBookedFilm($filmId)
+    {
+        return $this->bookings()->whereHas('showtime', function ($query) use ($filmId) {
+            $query->where('film_id', $filmId);
+        })->exists();
+    }
+
+    public function hasNotReviewed($filmId)
+    {
+        return !$this->reviews()->where('film_id', $filmId)->exists();
+    }
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
     }
 }

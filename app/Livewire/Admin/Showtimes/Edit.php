@@ -2,57 +2,69 @@
 
 namespace App\Livewire\Admin\Showtimes;
 
-use Livewire\Component;
-use App\Models\Showtime;
 use App\Models\Film;
+use App\Models\Showtime;
 use App\Models\Studio;
+use Livewire\Component;
 
 class Edit extends Component
 {
-    public $showtime_id, $film_id, $studio_id, $date, $time, $price;
-    public $films, $studios;
+    public Showtime $showtime;
 
-    protected $rules = [
-        'film_id' => 'required',
-        'studio_id' => 'required',
-        'date' => 'required|date',
-        'time' => 'required',
-        'price' => 'required|numeric|min:0',
-    ];
+    public $film_id;
+    public $studio_id;
+    public $date;
+    public $time;
 
-    public function mount($id)
+    protected function rules()
     {
-        $showtime = Showtime::findOrFail($id);
-        $this->showtime_id = $showtime->id;
+        return [
+            'film_id' => 'required|exists:films,id',
+            'studio_id' => 'required|exists:studios,id',
+            'date' => 'required|date',
+            'time' => 'required',
+        ];
+    }
+
+    public function mount(Showtime $showtime)
+    {
+        $this->showtime = $showtime;
         $this->film_id = $showtime->film_id;
         $this->studio_id = $showtime->studio_id;
-        $this->date = $showtime->date;
-        $this->time = $showtime->time;
-        $this->price = $showtime->price;
-
-        $this->films = Film::all();
-        $this->studios = Studio::all();
+        $this->date = $showtime->date->format('Y-m-d');
+        $this->time = $showtime->time->format('H:i');
     }
 
     public function update()
     {
         $this->validate();
 
-        $showtime = Showtime::find($this->showtime_id);
-        $showtime->update([
+        $this->showtime->update([
             'film_id' => $this->film_id,
             'studio_id' => $this->studio_id,
             'date' => $this->date,
             'time' => $this->time,
-            'price' => $this->price,
         ]);
 
-        session()->flash('message', 'Showtime updated successfully.');
-        return redirect()->route('showtimes.index');
+        session()->flash('success', 'Showtime updated successfully.');
+
+        return redirect()->route('admin.showtimes.index');
+    }
+
+    public function delete()
+    {
+        $this->showtime->delete();
+
+        session()->flash('success', 'Showtime deleted successfully.');
+
+        return redirect()->route('admin.showtimes.index');
     }
 
     public function render()
     {
-        return view('livewire.admin.showtimes.edit');
+        return view('livewire.admin.showtimes.edit', [
+            'films' => Film::all(),
+            'studios' => Studio::all(),
+        ]);
     }
 }

@@ -2,29 +2,27 @@
 
 namespace App\Livewire\Admin\Showtimes;
 
-use Livewire\Component;
 use App\Models\Showtime;
-use App\Models\Film;
-use App\Models\Studio;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 class Index extends Component
 {
-    public $showtimes;
+    use WithPagination;
 
-    public function mount()
+    public function delete(Showtime $showtime)
     {
-        $this->showtimes = Showtime::with(['film', 'studio'])->get();
-    }
+        $showtime->delete();
 
-    public function delete($id)
-    {
-        Showtime::find($id)->delete();
-        session()->flash('message', 'Showtime deleted successfully.');
-        $this->showtimes = Showtime::with(['film', 'studio'])->get();
+        session()->flash('success', 'Showtime deleted successfully.');
+
+        return redirect()->route('admin.showtimes.index');
     }
 
     public function render()
     {
-        return view('livewire.admin.showtimes.index');
+        return view('livewire.admin.showtimes.index', [
+            'showtimes' => Showtime::with(['film', 'studio'])->paginate(10),
+        ]);
     }
 }

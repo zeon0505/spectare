@@ -1,339 +1,260 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Showtimes - Spectare</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            font-family: 'Inter', sans-serif;
-        }
+<main class="flex-1 overflow-y-auto p-6 lg:p-8">
+    <div class="max-w-7xl mx-auto">
 
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Playfair Display', serif;
-        }
+        @if (session()->has('error'))
+            <div class="bg-red-500/10 border-l-4 border-red-500 text-red-400 px-5 py-4 rounded-lg relative mb-8 shadow-md flex items-center" role="alert">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                <span class="block sm:inline font-medium">{{ session('error') }}</span>
+            </div>
+        @endif
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Movie Poster and Trailer -->
+            <div class="lg:col-span-1">
+                <img src="{{ Str::startsWith($film->poster_url, 'http') ? $film->poster_url : Storage::url($film->poster_url) }}" alt="{{ $film->title }}" class="rounded-lg shadow-lg w-full">
+                @if ($film->trailer_url)
+                    <a href="{{ $film->trailer_url }}" target="_blank"
+                        class="mt-4 inline-block w-full text-center px-6 py-3 bg-amber-500 border border-transparent rounded-md font-semibold text-slate-900 uppercase tracking-widest hover:bg-amber-400 transition ease-in-out duration-150">
+                        Watch Trailer
+                    </a>
+                @endif
+            </div>
 
-        @keyframes slideInLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
+            <!-- Movie Details and Showtimes -->
+            <div class="lg:col-span-2">
+                <div class="bg-slate-800/50 border border-slate-700 rounded-lg shadow-lg p-6">
+                    <h1 class="text-4xl font-bold text-amber-400">{{ $film->title }}</h1>
+                    <div class="mt-2 flex items-center space-x-4 text-gray-400">
+                        <span>{{ \Carbon\Carbon::parse($film->release_date)->format('Y') }}</span>
+                        <span>&bull;</span>
+                        <span>{{ $film->duration }} min</span>
+                    </div>
+                    <div class="mt-4">
+                        @foreach ($film->genres as $genre)
+                            <span class="inline-block bg-slate-700 rounded-full px-3 py-1 text-sm font-semibold text-gray-300 mr-2 mb-2">{{ $genre->name }}</span>
+                        @endforeach
+                    </div>
 
-        .card-cinema {
-            animation: fadeIn 0.6s ease-out forwards;
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
-            border: 1px solid rgba(251, 191, 36, 0.2);
-            backdrop-filter: blur(10px);
-        }
+                    <p class="mt-6 text-gray-300 leading-relaxed">{{ $film->description }}</p>
 
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-5px);
-            border-color: rgba(251, 191, 36, 0.6);
-            box-shadow: 0 10px 40px rgba(251, 191, 36, 0.15);
-        }
-
-        .showtime-card {
-            animation: slideInLeft 0.7s ease-out forwards;
-        }
-
-        .showtime-card:nth-child(2) { animation-delay: 0.1s; }
-        .showtime-card:nth-child(3) { animation-delay: 0.2s; }
-        .showtime-card:nth-child(4) { animation-delay: 0.3s; }
-        .showtime-card:nth-child(5) { animation-delay: 0.4s; }
-        .showtime-card:nth-child(6) { animation-delay: 0.5s; }
-
-        .accent-amber {
-            color: #fbbf24;
-        }
-
-        .menu-item:hover {
-            background-color: rgba(251, 191, 36, 0.1);
-            color: #fbbf24;
-        }
-
-        .menu-item.active {
-            background-color: rgba(251, 191, 36, 0.2);
-            color: #fbbf24;
-            border-left: 3px solid #fbbf24;
-        }
-
-        .hamburger {
-            display: none;
-        }
-
-        .time-slot {
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .time-slot:hover {
-            background-color: rgba(251, 191, 36, 0.2);
-            border-color: rgba(251, 191, 36, 0.8);
-        }
-
-        .time-slot.selected {
-            background-color: rgba(251, 191, 36, 0.4);
-            border-color: rgba(251, 191, 36, 1);
-            color: #fbbf24;
-        }
-
-        @media (max-width: 768px) {
-            .hamburger {
-                display: block;
-            }
-
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-                position: fixed;
-                left: 0;
-                top: 0;
-                z-index: 40;
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-        }
-    </style>
-</head>
-<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-gray-100">
-
-    <div class="flex h-screen overflow-hidden">
-        <!-- SIDEBAR --> <a href="#" class="menu-item block px-4 py-3 rounded-lg transition-all duration-300">
-
-        <!-- MAIN CONTENT -->
-            <!-- HEADER -->
-            <header class="bg-gradient-to-r from-slate-900 to-slate-800 border-b border-amber-500/20 sticky top-0 z-30">
-                <div class="flex items-center justify-between px-8 py-4">
-                    <div class="flex items-center space-x-4">
-                        <button class="hamburger md:hidden text-amber-400 hover:text-amber-300">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    <div class="mt-6">
+                        <button wire:click="toggleWishlist"
+                            class="inline-flex items-center px-4 py-2 rounded-md font-semibold text-sm transition-colors duration-200
+                                @if ($isInWishlist)
+                                    bg-red-600 hover:bg-red-700 text-white
+                                @else
+                                    bg-amber-500 hover:bg-amber-600 text-slate-900
+                                @endif
+                            \">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
                             </svg>
+                            @if ($isInWishlist)
+                                Remove from Wishlist
+                            @else
+                                Add to Wishlist
+                            @endif
                         </button>
-                        <h2 class="text-2xl font-bold text-white">Showtimes & Bookings</h2>
                     </div>
-                    <div class="flex items-center space-x-6">
-                        <button class="relative text-gray-300 hover:text-amber-400 transition-colors">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+
+                    <div class="mt-8">
+                        <h2 class="text-2xl font-bold text-amber-400 mb-6 flex items-center">
+                            <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
                             </svg>
-                            <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-                        </button>
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center cursor-pointer hover:shadow-lg hover:shadow-amber-500/50 transition-all">
-                            <span class="text-sm font-bold text-slate-900">JD</span>
-                        </div>
+                            Showtimes
+                        </h2>
+                        
+                        @forelse ($upcomingShowtimes->groupBy(fn($showtime) => $showtime->date->format('Y-m-d')) as $date => $showtimes)
+                            <div class="mb-8">
+                                <h3 class="text-lg font-semibold text-gray-300 mb-4">
+                                    {{ \Carbon\Carbon::parse($date)->format('l, d F Y') }}
+                                </h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    @foreach ($showtimes as $showtime)
+                                        <div class="bg-slate-900/80 border border-slate-700/50 rounded-xl p-5 hover:border-amber-500/50 transition-all duration-300 shadow-lg">
+                                            <div class="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <p class="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-1.5">Studio</p>
+                                                    <p class="text-white font-bold text-lg">{{ $showtime->studio->name }}</p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <p class="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-1.5">Time</p>
+                                                    <p class="text-amber-500 font-bold text-2xl tracking-tight">{{ \Carbon\Carbon::parse($showtime->time)->format('H:i') }}</p>
+                                                </div>
+                                            </div>
+                                            <button wire:click="selectShowtime('{{ $showtime->id }}')"
+                                                class="w-full bg-slate-800/80 hover:bg-amber-500 hover:text-slate-900 text-gray-300 font-semibold py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-amber-500/20">
+                                                Book Ticket
+                                            </button>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-gray-400">No showtimes available for this film yet.</p>
+                        @endforelse
                     </div>
+
+                    @if ($selectedShowtime)
+                        <div class="mt-8">
+                            <h2 class="text-2xl font-bold text-amber-400 mb-4">Select Seats</h2>
+                            <div class="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
+                                <div class="flex justify-center mb-4">
+                                    <div class="bg-slate-600 text-white text-center py-1 px-8 rounded-md">Screen</div>
+                                </div>
+                                <div class="space-y-2">
+                                    <p class="text-gray-400">Pilih kursi yang tersedia di bawah ini.</p>
+
+                                    {{-- Seat Layout --}}
+                                    <div class="mt-4 p-4 border-2 border-gray-700 border-dashed rounded-lg bg-slate-800/50">
+                                        <div class="w-full h-8 mb-4 bg-gray-900 rounded-sm text-center text-white flex items-center justify-center">
+                                            <span class="text-sm font-bold tracking-widest">SCREEN</span>
+                                        </div>
+                                        @if (!empty($seats))
+                                            <div class="space-y-2">
+                                                @foreach ($seats as $row)
+                                                    <div class="flex justify-center space-x-2">
+                                                        @foreach ($row as $seat)
+                                                            @if ($seat['status'] === 'space')
+                                                                <div class="w-8 h-8"></div>
+                                                            @else
+                                                                <button wire:click="toggleSeat('{{ $seat['number'] }}')"
+                                                                    @class([
+                                                                        'w-8 h-8 rounded-md flex items-center justify-center font-semibold text-sm transition-colors duration-200',
+                                                                        'bg-amber-500 text-slate-900' => $seat['status'] === 'available' && in_array($seat['number'], $selectedSeats),
+                                                                        'bg-green-600 text-white hover:bg-amber-500 hover:text-slate-900' => $seat['status'] === 'available' && !in_array($seat['number'], $selectedSeats),
+                                                                        'bg-red-600 text-white cursor-not-allowed' => $seat['status'] === 'booked',
+                                                                    ])
+                                                                    @if ($seat['status'] === 'booked') disabled @endif>
+                                                                    {{-- {{ $seat['number'] }} --}}
+                                                                </button>
+                                                            @endif
+                                                        @endforeach
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <div class="text-center py-8">
+                                                <p class="text-gray-400">Maaf, tata letak kursi untuk pertunjukan ini tidak tersedia.</p>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    {{-- Legend & Summary --}}
+                                    <div class="mt-6 pt-4 border-t border-slate-700">
+                                        <div class="flex justify-between items-center">
+                                            <div class="flex items-center space-x-4 text-sm">
+                                                <div class="flex items-center"><span class="w-4 h-4 rounded-sm bg-green-600 mr-2"></span> Available</div>
+                                                <div class="flex items-center"><span class="w-4 h-4 rounded-sm bg-amber-500 mr-2"></span> Selected</div>
+                                                <div class="flex items-center"><span class="w-4 h-4 rounded-sm bg-red-600 mr-2"></span> Booked</div>>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-300">Selected: <span class="font-bold text-white">{{ count($selectedSeats) }}</span></p>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-300">Total Price: <span class="font-bold text-amber-400">Rp {{ number_format($totalPrice, 0, ',', '.') }}</span></p>
+                                        </div>
+                                        <button wire:click="proceedToBooking" @if(count($selectedSeats) === 0) disabled @endif
+                                            class="px-6 py-3 bg-amber-500 border border-transparent rounded-md font-semibold text-slate-900 uppercase tracking-widest hover:bg-amber-400 transition ease-in-out duration-150 disabled:opacity-50 disabled:cursor-not-allowed\">
+                                            Book Now
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
-            </header>
+            </div>
+        </div>
 
-            <!-- PAGE CONTENT -->
-            <div class="p-8">
-                <!-- DATE SELECTOR -->
-                <div class="card-cinema card-hover p-6 rounded-lg mb-8">
-                    <div class="flex flex-col md:flex-row gap-4 items-end">
-                        <div class="flex-1">
-                            <label class="block text-sm font-semibold text-gray-300 mb-2">Select Date</label>
-                            <input type="date" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-2 text-gray-100 focus:outline-none focus:border-amber-500/50">
-                        </div>
-                        <div class="flex-1">
-                            <label class="block text-sm font-semibold text-gray-300 mb-2">Select Film</label>
-                            <select class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-2 text-gray-100 focus:outline-none focus:border-amber-500/50">
-                                <option>All Films</option>
-                                <option>The Quantum Escape</option>
-                                <option>Hearts Unbound</option>
-                                <option>Jungle Chronicles</option>
-                                <option>Dark Shadows Rising</option>
-                            </select>
-                        </div>
-                        <button class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded-lg transition-colors">Search</button>
-                    </div>
+        <div class="mt-8">
+            <h2 class="text-2xl font-bold text-amber-400 mb-4">Reviews</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold text-white mb-4">Leave a Review</h3>
+                    @auth
+                        @if(Auth::user()->hasBookedFilm($film->id))
+                            @if(Auth::user()->hasNotReviewed($film->id))
+                                <livewire:user.reviews.create :film="$film" />
+                            @else
+                                <p class="text-gray-400">You have already reviewed this film.</p>
+                            @endif
+                        @else
+                            <p class="text-gray-400">You must book a ticket for this film to leave a review.</p>
+                        @endauth
+                    @else
+                        <p class="text-gray-400">Please <a href="{{ route('login') }}" class="text-amber-500 hover:underline">login</a> to leave a review.</p>
+                    @endauth
                 </div>
-
-                <!-- SHOWTIME CARDS -->
-                <div class="space-y-6">
-                    <!-- Showtime 1 -->
-                    <div class="showtime-card card-cinema card-hover p-6 rounded-lg">
-                        <div class="flex items-start justify-between mb-4">
-                            <div>
-                                <h3 class="text-2xl font-bold text-white mb-2">The Quantum Escape</h3>
-                                <p class="text-gray-400">Action • Sci-Fi • 2h 18m • Rating: 8.5/10</p>
+                <div>
+                    <h3 class="text-xl font-bold text-white mb-4">User Reviews</h3>
+                    <div class="space-y-4">
+                        @forelse ($reviews as $review)
+                            <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+                                <div class="flex items-center mb-2">
+                                    <p class="font-semibold text-white">{{ $review->user->name }}</p>
+                                    <div class="ml-auto flex items-center">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <svg class="w-4 h-4 {{ $review->rating >= $i ? 'text-yellow-400' : 'text-gray-500' }}" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.365 2.444a1 1 0 00-.364 1.118l1.287 3.957c.3.921-.755 1.688-1.54 1.118l-3.365-2.444a1 1 0 00-1.175 0l-3.365 2.444c-.784.57-1.838-.197-1.539-1.118l1.287-3.957a1 1 0 00-.364-1.118L2.073 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z" />
+                                            </svg>
+                                        @endfor
+                                    </div>
+                                </div>
+                                <p class="text-gray-300">{{ $review->comment }}</p>
+                                <p class="text-xs text-gray-500 mt-2">{{ $review->created_at->diffForHumans() }}</p>
                             </div>
-                            <div class="text-right">
-                                <p class="text-gray-400 text-sm">Studio 1</p>
-                                <p class="text-amber-400 font-bold text-lg">Rp.50.000</p>
-                            </div>
-                        </div>
-                        <div class="h-px bg-slate-700 my-4"></div>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold hover:border-amber-500 transition-all">09:00 AM</button>
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold hover:border-amber-500 transition-all">12:30 PM</button>
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold selected">03:00 PM</button>
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold hover:border-amber-500 transition-all">06:30 PM</button>
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold hover:border-amber-500 transition-all">09:00 PM</button>
-                        </div>
-                        <div class="mt-4 flex justify-end">
-                            <button class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded-lg transition-colors">Book Now</button>
-                        </div>
-                    </div>
-
-                    <!-- Showtime 2 -->
-                    <div class="showtime-card card-cinema card-hover p-6 rounded-lg">
-                        <div class="flex items-start justify-between mb-4">
-                            <div>
-                                <h3 class="text-2xl font-bold text-white mb-2">Hearts Unbound</h3>
-                                <p class="text-gray-400">Romance • Drama • 2h 5m • Rating: 7.8/10</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-gray-400 text-sm">Studio 2</p>
-                                <p class="text-amber-400 font-bold text-lg">Rp.45.000</p>
-                            </div>
-                        </div>
-                        <div class="h-px bg-slate-700 my-4"></div>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold hover:border-amber-500 transition-all">10:00 AM</button>
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold hover:border-amber-500 transition-all">01:00 PM</button>
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold hover:border-amber-500 transition-all">04:00 PM</button>
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold selected">07:00 PM</button>
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold hover:border-amber-500 transition-all">10:00 PM</button>
-                        </div>
-                        <div class="mt-4 flex justify-end">
-                            <button class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded-lg transition-colors">Book Now</button>
-                        </div>
-                    </div>
-
-                    <!-- Showtime 3 -->
-                    <div class="showtime-card card-cinema card-hover p-6 rounded-lg">
-                        <div class="flex items-start justify-between mb-4">
-                            <div>
-                                <h3 class="text-2xl font-bold text-white mb-2">Jungle Chronicles</h3>
-                                <p class="text-gray-400">Adventure • Documentary • 1h 52m • Rating: 9.0/10</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-gray-400 text-sm">Studio 3</p>
-                                <p class="text-amber-400 font-bold text-lg">Rp.40.000</p>
-                            </div>
-                        </div>
-                        <div class="h-px bg-slate-700 my-4"></div>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold hover:border-amber-500 transition-all">08:00 AM</button>
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold selected">11:00 AM</button>
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold hover:border-amber-500 transition-all">02:00 PM</button>
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold hover:border-amber-500 transition-all">05:00 PM</button>
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold hover:border-amber-500 transition-all">08:00 PM</button>
-                        </div>
-                        <div class="mt-4 flex justify-end">
-                            <button class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded-lg transition-colors">Book Now</button>
-                        </div>
-                    </div>
-
-                    <!-- Showtime 4 -->
-                    <div class="showtime-card card-cinema card-hover p-6 rounded-lg">
-                        <div class="flex items-start justify-between mb-4">
-                            <div>
-                                <h3 class="text-2xl font-bold text-white mb-2">Dark Shadows Rising</h3>
-                                <p class="text-gray-400">Horror • Thriller • 1h 58m • Rating: 8.2/10</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-gray-400 text-sm">Studio 4</p>
-                                <p class="text-amber-400 font-bold text-lg">Rp.50.000</p>
-                            </div>
-                        </div>
-                        <div class="h-px bg-slate-700 my-4"></div>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold hover:border-amber-500 transition-all">07:00 PM</button>
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold hover:border-amber-500 transition-all">09:30 PM</button>
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold selected">11:45 PM</button>
-                        </div>
-                        <div class="mt-4 flex justify-end">
-                            <button class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded-lg transition-colors">Book Now</button>
-                        </div>
-                    </div>
-
-                    <!-- Showtime 5 -->
-                    <div class="showtime-card card-cinema card-hover p-6 rounded-lg">
-                        <div class="flex items-start justify-between mb-4">
-                            <div>
-                                <h3 class="text-2xl font-bold text-white mb-2">The Last Horizon</h3>
-                                <p class="text-gray-400">Sci-Fi • Drama • 2h 25m • Rating: 8.7/10</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-gray-400 text-sm">Studio 5</p>
-                                <p class="text-amber-400 font-bold text-lg">Rp.55.000</p>
-                            </div>
-                        </div>
-                        <div class="h-px bg-slate-700 my-4"></div>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold hover:border-amber-500 transition-all">11:00 AM</button>
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold hover:border-amber-500 transition-all">02:30 PM</button>
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold hover:border-amber-500 transition-all">06:00 PM</button>
-                            <button class="time-slot border border-slate-600 rounded-lg py-3 px-2 text-center font-semibold selected">09:00 PM</button>
-                        </div>
-                        <div class="mt-4 flex justify-end">
-                            <button class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded-lg transition-colors">Book Now</button>
-                        </div>
+                        @empty
+                            <p class="text-gray-400">No reviews for this film yet.</p>
+                        @endforelse
                     </div>
                 </div>
             </div>
-
-            <!-- FOOTER -->
-            <footer class="border-t border-slate-700/50 bg-slate-900/50 py-6 px-8 mt-8">
-                <div class="flex flex-col md:flex-row items-center justify-between text-gray-400 text-sm">
-                    <p>&copy; 2025 Spectare Cinema. All rights reserved.</p>
-                    <div class="flex space-x-6 mt-4 md:mt-0">
-                        <a href="#" class="hover:text-amber-400 transition-colors">Privacy Policy</a>
-                        <a href="#" class="hover:text-amber-400 transition-colors">Terms of Service</a>
-                        <a href="#" class="hover:text-amber-400 transition-colors">Contact Us</a>
-                    </div>
-                </div>
-            </footer>
-        </main>
+        </div>
     </div>
 
+    @push('scripts')
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
     <script>
-        const hamburger = document.querySelector('.hamburger');
-        const sidebar = document.querySelector('.sidebar');
-
-        hamburger?.addEventListener('click', () => {
-            sidebar.classList.toggle('open');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.sidebar') && !e.target.closest('.hamburger')) {
-                sidebar.classList.remove('open');
-            }
-        });
-
-        // Time slot selection
-        document.querySelectorAll('.time-slot').forEach(slot => {
-            slot.addEventListener('click', function() {
-                this.parentElement.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-                this.classList.add('selected');
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('open-midtrans-popup', (event) => {
+                if (event.token) {
+                    window.snap.pay(event.token, {
+                        onSuccess: function(result) {
+                            /* You may add your own implementation here */
+                            // alert("payment success!");
+                            // console.log(result);
+                            window.location.href = "{{ route('user.bookings.index') }}";
+                        },
+                        onPending: function(result) {
+                            /* You may add your own implementation here */
+                            // alert("wating your payment!");
+                            // console.log(result);
+                            window.location.href = "{{ route('user.bookings.index') }}";
+                        },
+                        onError: function(result) {
+                            /* You may add your own implementation here */
+                            // alert("payment failed!");
+                            // console.log(result);
+                            window.location.reload();
+                        },
+                        onClose: function() {
+                            /* You may add your own implementation here */
+                            // alert('you closed the popup without finishing the payment');
+                            window.location.reload();
+                        }
+                    });
+                } else {
+                    console.error('Snap token not received.');
+                    alert('Gagal memuat halaman pembayaran. Silakan coba lagi.');
+                }
             });
         });
     </script>
-</body>
-</html>
+    @endpush
+</div>
+
+</main>

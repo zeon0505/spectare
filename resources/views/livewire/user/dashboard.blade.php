@@ -94,37 +94,32 @@
                     <div class="lg:col-span-2 card-cinema card-hover p-6 rounded-lg">
                         <h3 class="text-xl font-bold text-white mb-4">Now Showing</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="bg-slate-800/50 rounded-lg overflow-hidden hover:scale-105 transition-transform">
-                                <div class="h-40 bg-gradient-to-br from-amber-500/20 to-red-500/20 flex items-center justify-center">
-                                    <svg class="w-16 h-16 text-amber-400/30" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                                    </svg>
-                                </div>
-                                <div class="p-4">
-                                    <h4 class="font-bold text-white mb-1">High & Low The Worst</h4>
-                                    <p class="text-xs text-gray-400">Action • 2h 15m</p>
-                                    <div class="flex items-center justify-between mt-3">
-                                        <span class="text-sm accent-amber font-semibold">Rp.40.000</span>
-                                        <button class="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded transition-colors text-xs">Book</button>
+                            @forelse($nowShowingFilms as $film)
+                                <div class="bg-slate-800/50 rounded-lg overflow-hidden hover:scale-105 transition-transform">
+                                    <div class="h-40 bg-gradient-to-br from-amber-500/20 to-red-500/20 flex items-center justify-center overflow-hidden">
+                                        <img src="{{ Str::startsWith($film->poster_url, 'http') ? $film->poster_url : Storage::url($film->poster_url) }}" 
+                                             alt="{{ $film->title }}"
+                                             class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="p-4">
+                                        <h4 class="font-bold text-white mb-1">{{ $film->title }}</h4>
+                                        <p class="text-xs text-gray-400">
+                                            {{ $film->genres->pluck('name')->implode(' • ') }} • {{ $film->duration }}m
+                                        </p>
+                                        <div class="flex items-center justify-between mt-3">
+                                            <span class="text-sm accent-amber font-semibold">Rp {{ number_format($film->ticket_price, 0, ',', '.') }}</span>
+                                            <a href="{{ route('user.films.show', $film) }}" 
+                                               class="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded transition-colors text-xs">
+                                                Book
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="bg-slate-800/50 rounded-lg overflow-hidden hover:scale-105 transition-transform">
-                                <div class="h-40 bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center">
-                                    <svg class="w-16 h-16 text-purple-400/30" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-                                    </svg>
+                            @empty
+                                <div class="col-span-2 text-center py-8">
+                                    <p class="text-gray-400">No films currently showing</p>
                                 </div>
-                                <div class="p-4">
-                                    <h4 class="font-bold text-white mb-1">Weak Hero Class 1</h4>
-                                    <p class="text-xs text-gray-400">Drama • 1h 58m</p>
-                                    <div class="flex items-center justify-between mt-3">
-                                        <span class="text-sm accent-amber font-semibold">Rp.40.000</span>
-                                        <button class="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded transition-colors text-xs">Book</button>
-                                    </div>
-                                </div>
-                            </div>
+                            @endforelse
                         </div>
                     </div>
 

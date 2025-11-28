@@ -8,9 +8,9 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('showtimes', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('film_id')->constrained()->onDelete('cascade');
-            $table->foreignId('studio_id')->constrained()->onDelete('cascade');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('film_id')->constrained()->onDelete('cascade');
+            $table->foreignUuid('studio_id')->constrained()->onDelete('cascade');
             $table->date('date');
             $table->time('time');
             $table->timestamps();

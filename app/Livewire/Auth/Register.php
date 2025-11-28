@@ -4,12 +4,14 @@ namespace App\Livewire\Auth;
 
 use App\Models\User;
 use Livewire\Component;
-use Livewire\Attributes\Layout;
+use Livewire\Attributes\Layout; // PASTIKAN BARIS INI ADA
 use Illuminate\Support\Facades\Hash;
+
+use Illuminate\Support\Facades\Auth; // Import Auth facade
 
 class Register extends Component
 {
-    #[Layout('components.layouts.auth')]
+    #[Layout('components.layouts.auth')] // PASTIKAN BARIS INI SEPERTI INI
 
     public $name = '';
     public $email = '';
@@ -37,15 +39,18 @@ class Register extends Component
         $this->validate();
 
         // Simpan data user baru
-        User::create([
+        $user = User::create([
             'name' => $this->name,
             'email' => $this->email,
             'password' => Hash::make($this->password),
             'role' => 'user',
         ]);
 
-        // Redirect ke halaman login setelah daftar
-        return redirect()->route('login');
+        // Login user secara otomatis
+        Auth::login($user);
+
+        // Redirect ke halaman dashboard user setelah daftar
+        return redirect()->route('user.dashboard');
     }
 
     public function render()

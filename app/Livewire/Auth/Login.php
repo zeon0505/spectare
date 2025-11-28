@@ -35,18 +35,14 @@ class Login extends Component
 
             $user = Auth::user();
 
-            // jika user tidak ditemukan
             if (!$user) {
                 session()->flash('error', 'Terjadi kesalahan saat login.');
                 return redirect()->route('login');
             }
 
-            // redirect sesuai role
-            if ($user->role === 'admin') {
-                return redirect()->route('admin.dashboard');
-            }
-
-            return redirect()->route('user.dashboard');
+            // Mengarahkan pengguna ke URL yang dituju sebelum login,
+            // atau ke dasbor berdasarkan peran jika tidak ada URL yang dituju.
+            return redirect()->intended($user->role === 'admin' ? route('admin.dashboard') : route('user.dashboard'));
         }
 
         session()->flash('error', 'Email atau password salah.');

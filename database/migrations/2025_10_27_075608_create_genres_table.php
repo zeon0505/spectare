@@ -9,8 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('genres', function (Blueprint $table) {
-            $table->id();
-            $table->string('name'); // nama genre, contoh: Action, Drama, Horror
+            $table->uuid('id')->primary();
+            $table->string('name');
             $table->text('description')->nullable();
             $table->timestamps();
         });

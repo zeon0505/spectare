@@ -8,8 +8,8 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('transactions', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('booking_id')->constrained()->onDelete('cascade');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('booking_id')->constrained()->onDelete('cascade');
             $table->decimal('amount', 10, 2);
             $table->enum('payment_method', ['cash', 'qris', 'transfer'])->default('qris');
             $table->enum('status', ['pending', 'success', 'failed'])->default('pending');

@@ -5,17 +5,19 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    public function up(): void
-    {
-        Schema::create('reviews', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('film_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->tinyInteger('rating')->unsigned(); // 1–5
-            $table->text('comment')->nullable();
-            $table->timestamps();
-        });
-    }
+  public function up()
+{
+    Schema::create('reviews', function (Blueprint $table) {
+        $table->uuid('id')->primary();
+        $table->foreignUuid('user_id')->constrained()->onDelete('cascade');
+        $table->foreignUuid('film_id')->constrained()->onDelete('cascade');
+        $table->integer('rating')->default(0); // misal 1-5 bintang
+        $table->text('comment')->nullable();
+        $table->boolean('is_approved')->default(false); // admin bisa verifikasi
+        $table->timestamps();
+    });
+}
+
 
     public function down(): void
     {

@@ -130,19 +130,22 @@
             }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-gray-100">
 
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-screen">
         <!-- SIDEBAR -->
         @include('components.layouts.partials.sidebar')
 
         <!-- MAIN CONTENT -->
-        {{ $slot }}
+        <main class="flex-1 overflow-y-auto">
+            {{ $slot }}
+        </main>
     </div>
 
     <script>
-        // Hamburger menu toggle
+        // Hamburger menu toggleburger menu toggle
         const hamburger = document.querySelector('.hamburger');
         const sidebar = document.querySelector('.sidebar');
 
@@ -157,5 +160,6 @@
             }
         });
     </script>
+    @stack('scripts')
 </body>
 </html>
