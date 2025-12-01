@@ -83,8 +83,7 @@
                     @endif
                 </div>
 
-                <button wire:click="toggleBlock" 
-                        wire:confirm="Apakah Anda yakin ingin {{ $user->is_blocked ? 'unblock' : 'block' }} user ini?"
+                <button onclick="confirmBlockUser({{ $user->is_blocked ? 'true' : 'false' }})" 
                         class="mt-6 w-full px-4 py-2 {{ $user->is_blocked ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600' }} text-white font-semibold rounded-lg transition-colors">
                     {{ $user->is_blocked ? 'Unblock User' : 'Block User' }}
                 </button>
@@ -220,3 +219,27 @@
         </div>
     </div>
 </div>
+
+<script>
+function confirmBlockUser(isBlocked) {
+    Swal.fire({
+        title: isBlocked ? 'Unblock User' : 'Block User',
+        text: isBlocked ? 'Apakah Anda yakin ingin unblock user ini?' : 'Apakah Anda yakin ingin block user ini?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: isBlocked ? '#10b981' : '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: isBlocked ? 'Ya, Unblock' : 'Ya, Block',
+        cancelButtonText: 'Batal',
+        background: '#1e293b',
+        color: '#f1f5f9',
+        customClass: {
+            popup: 'border border-amber-500/20'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            @this.call('toggleBlock');
+        }
+    });
+}
+</script>
