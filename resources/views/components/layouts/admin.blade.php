@@ -146,7 +146,7 @@
     </div>
 
     <script>
-        // Hamburger menu toggle
+        
         const hamburger = document.querySelector('.hamburger');
         const sidebar = document.querySelector('.sidebar');
 
@@ -154,7 +154,7 @@
             sidebar.classList.toggle('open');
         });
 
-        // Close sidebar when clicking outside on mobile
+       
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.sidebar') && !e.target.closest('.hamburger')) {
                 sidebar.classList.remove('open');

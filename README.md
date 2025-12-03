@@ -372,4 +372,4 @@ Aplikasi ini dibangun dengan [Laravel](https://laravel.com) yang merupakan open-
 
 ---
 
-**Dibuat dengan ❤️ menggunakan Laravel & Livewire**
+**Dibuat dengan menggunakan Laravel & Livewire**

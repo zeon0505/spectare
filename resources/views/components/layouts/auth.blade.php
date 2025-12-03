@@ -763,10 +763,10 @@
 <body>
     <div class="wrapper">
         <div class="container">
-            <!-- Left: Register Form -->
+            <!-- Kiri: Register Form -->
             {{ $slot }}
 
-            <!-- Right: Cinema Visual -->
+            <!-- Kanan: Cinema Visual -->
             <div class="cinema-section">
                 <div class="cinema-visual">
                     <div class="film-reel">
