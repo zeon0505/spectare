@@ -19,6 +19,23 @@ class Profile extends Component
     public $new_password_confirmation;
     public $profile_photo;
     public $user;
+    public $isEditingProfile = false;
+    public $isEditingPassword = false;
+
+    public function toggleEditProfile()
+    {
+        $this->isEditingProfile = !$this->isEditingProfile;
+        if (!$this->isEditingProfile) {
+            $this->mount(); // Reset data if cancelling
+        }
+    }
+
+    public function toggleEditPassword()
+    {
+        $this->isEditingPassword = !$this->isEditingPassword;
+        $this->reset(['current_password', 'new_password', 'new_password_confirmation']);
+    }
+
 
     public function mount()
     {

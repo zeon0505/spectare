@@ -51,4 +51,24 @@ class Film extends Model
     {
         return $this->hasMany(Wishlist::class);
     }
+
+    /**
+     * Get the average rating from approved reviews
+     */
+    public function getAverageRatingAttribute()
+    {
+        return $this->reviews()
+            ->where('is_approved', true)
+            ->avg('rating');
+    }
+
+    /**
+     * Get the total count of approved reviews
+     */
+    public function getReviewCountAttribute()
+    {
+        return $this->reviews()
+            ->where('is_approved', true)
+            ->count();
+    }
 }

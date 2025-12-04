@@ -1,22 +1,24 @@
-<div class="p-6 sm:p-10">
+<div class="p-6 sm:p-10 bg-slate-950">
     {{-- Header --}}
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-amber-500 drop-shadow-md">
+    <div class="mb-12">
+        <h1 class="text-5xl font-black text-white drop-shadow-md mb-2">
             Dashboard Admin
         </h1>
-        <p class="text-gray-400 mt-1">Selamat datang kembali, {{ Auth::user()->name }}</p>
+        <p class="text-gray-400 text-lg">Selamat datang kembali, <span class="text-amber-500 font-semibold">{{ Auth::user()->name }}</span></p>
     </div>
 
     {{-- Stats Cards --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {{-- Total Films --}}
-        <div class="bg-slate-800 rounded-xl shadow-2xl shadow-black/50 border border-slate-700 p-6">
-            <div class="flex items-center justify-between">
+        <div class="group relative bg-gradient-to-br from-amber-500/10 to-slate-800 rounded-2xl shadow-xl shadow-black/40 border border-amber-500/20 p-5 hover:border-amber-500/50 transition-all duration-300 hover:transform hover:-translate-y-1 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div class="relative flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-400">Total Films</p>
-                    <p class="text-3xl font-bold text-white mt-2">{{ $totalFilms }}</p>
+                    <p class="text-xs text-gray-400 font-medium mb-1 uppercase tracking-wider">Total Films</p>
+                    <p class="text-3xl font-black text-white">{{ $totalFilms }}</p>
+                    <p class="text-[10px] text-amber-500 mt-1 font-medium">All movies</p>
                 </div>
-                <div class="bg-amber-500/10 p-3 rounded-lg">
+                <div class="bg-amber-500/20 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm shadow-inner shadow-amber-500/10">
                     <svg class="w-8 h-8 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"></path>
                     </svg>
@@ -25,14 +27,16 @@
         </div>
 
         {{-- Total Bookings --}}
-        <div class="bg-slate-800 rounded-xl shadow-2xl shadow-black/50 border border-slate-700 p-6">
-            <div class="flex items-center justify-between">
+        <div class="group relative bg-gradient-to-br from-blue-500/10 to-slate-800 rounded-2xl shadow-xl shadow-black/40 border border-blue-500/20 p-5 hover:border-blue-500/50 transition-all duration-300 hover:transform hover:-translate-y-1 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div class="relative flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-400">Total Bookings</p>
-                    <p class="text-3xl font-bold text-white mt-2">{{ $totalBookings }}</p>
+                    <p class="text-xs text-gray-400 font-medium mb-1 uppercase tracking-wider">Total Bookings</p>
+                    <p class="text-3xl font-black text-white">{{ $totalBookings }}</p>
+                    <p class="text-[10px] text-blue-400 mt-1 font-medium">All tickets</p>
                 </div>
-                <div class="bg-blue-500/10 p-3 rounded-lg">
-                    <svg class="w-8 h-8 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                <div class="bg-blue-500/20 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm shadow-inner shadow-blue-500/10">
+                    <svg class="w-8 h-8 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
                         <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
                     </svg>
@@ -41,14 +45,16 @@
         </div>
 
         {{-- Total Revenue --}}
-        <div class="bg-slate-800 rounded-xl shadow-2xl shadow-black/50 border border-slate-700 p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-400">Total Revenue</p>
-                    <p class="text-3xl font-bold text-white mt-2">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
+        <div class="group relative bg-gradient-to-br from-green-500/10 to-slate-800 rounded-2xl shadow-xl shadow-black/40 border border-green-500/20 p-5 hover:border-green-500/50 transition-all duration-300 hover:transform hover:-translate-y-1 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div class="relative flex items-center justify-between">
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs text-gray-400 font-medium mb-1 uppercase tracking-wider">Total Revenue</p>
+                    <p class="text-xl sm:text-2xl font-black text-white break-words">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
+                    <p class="text-[10px] text-green-400 mt-1 font-medium">Lifetime earnings</p>
                 </div>
-                <div class="bg-green-500/10 p-3 rounded-lg">
-                    <svg class="w-8 h-8 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <div class="bg-green-500/20 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm flex-shrink-0 ml-4 shadow-inner shadow-green-500/10">
+                    <svg class="w-8 h-8 text-green-400" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"></path>
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"></path>
                     </svg>
@@ -57,14 +63,16 @@
         </div>
 
         {{-- Active Shows --}}
-        <div class="bg-slate-800 rounded-xl shadow-2xl shadow-black/50 border border-slate-700 p-6">
-            <div class="flex items-center justify-between">
+        <div class="group relative bg-gradient-to-br from-purple-500/10 to-slate-800 rounded-2xl shadow-xl shadow-black/40 border border-purple-500/20 p-5 hover:border-purple-500/50 transition-all duration-300 hover:transform hover:-translate-y-1 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div class="relative flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-400">Active Shows</p>
-                    <p class="text-3xl font-bold text-white mt-2">{{ $activeShows }}</p>
+                    <p class="text-xs text-gray-400 font-medium mb-1 uppercase tracking-wider">Active Shows</p>
+                    <p class="text-3xl font-black text-white">{{ $activeShows }}</p>
+                    <p class="text-[10px] text-purple-400 mt-1 font-medium">Running now</p>
                 </div>
-                <div class="bg-purple-500/10 p-3 rounded-lg">
-                    <svg class="w-8 h-8 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                <div class="bg-purple-500/20 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm shadow-inner shadow-purple-500/10">
+                    <svg class="w-8 h-8 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
                     </svg>
                 </div>
@@ -73,58 +81,99 @@
     </div>
 
     {{-- Charts Row --}}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
         {{-- Sales Chart --}}
-        <div class="bg-slate-800 rounded-xl shadow-2xl shadow-black/50 border border-slate-700 p-6">
-            <h3 class="text-xl font-semibold text-white mb-4">Laporan Keuangan (Per-bulan)</h3>
-            <div id="sales-chart"></div>
+        <div class="bg-slate-900 rounded-2xl shadow-2xl shadow-black/30 border border-slate-800 p-6 hover:border-amber-500/30 transition-all duration-300">
+            <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                <span class="w-1 h-6 bg-amber-500 rounded-full mr-3"></span>
+                Laporan Keuangan
+                <span class="ml-2 text-sm font-normal text-gray-500">(Per-bulan)</span>
+            </h3>
+            <div id="sales-chart" class="-ml-2" wire:ignore></div>
         </div>
 
         {{-- Bookings Chart --}}
-        <div class="bg-slate-800 rounded-xl shadow-2xl shadow-black/50 border border-slate-700 p-6">
-            <h3 class="text-xl font-semibold text-white mb-4">Grafik Pembelian (Per-bulan)</h3>
-            <div id="bookings-chart"></div>
+        <div class="bg-slate-900 rounded-2xl shadow-2xl shadow-black/30 border border-slate-800 p-6 hover:border-blue-500/30 transition-all duration-300">
+            <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                <span class="w-1 h-6 bg-blue-500 rounded-full mr-3"></span>
+                Grafik Pembelian
+                <span class="ml-2 text-sm font-normal text-gray-500">(Per-bulan)</span>
+            </h3>
+            <div id="bookings-chart" class="-ml-2" wire:ignore></div>
         </div>
     </div>
 
     {{-- Now Showing & Coming Soon --}}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {{-- Now Showing --}}
-        <div class="bg-slate-800 rounded-xl shadow-2xl shadow-black/50 border border-slate-700 p-6">
-            <h3 class="text-xl font-semibold text-white mb-4">Now Showing</h3>
+        <div class="bg-slate-900 rounded-2xl shadow-2xl shadow-black/30 border border-slate-800 p-8">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-white flex items-center">
+                    <span class="w-2 h-2 bg-green-500 rounded-full mr-3 animate-pulse"></span>
+                    Now Showing
+                </h3>
+                <a href="{{ route('admin.films.index') }}" class="text-sm text-amber-500 hover:text-amber-400 font-semibold transition-colors">View All &rarr;</a>
+            </div>
             <div class="space-y-4">
                 @forelse($nowShowingFilms as $film)
-                    <div class="flex items-center space-x-4 p-3 bg-slate-700/50 rounded-lg hover:bg-slate-700 transition-colors">
-                        <img src="{{ Str::startsWith($film->poster_url, 'http') ? $film->poster_url : Storage::url($film->poster_url) }}" 
-                             alt="{{ $film->title }}" 
-                             class="w-16 h-24 object-cover rounded">
-                        <div class="flex-1">
-                            <h4 class="font-semibold text-white">{{ $film->title }}</h4>
-                            <p class="text-sm text-gray-400">{{ $film->genres->pluck('name')->join(', ') }}</p>
+                    <div class="group flex items-center space-x-4 p-4 bg-slate-800/50 rounded-xl border border-slate-700/50 hover:bg-slate-800 hover:border-amber-500/50 transition-all duration-300 hover:transform hover:translate-x-2">
+                        <div class="relative w-16 h-24 flex-shrink-0 rounded-lg overflow-hidden shadow-lg">
+                            <img src="{{ Str::startsWith($film->poster_url, 'http') ? $film->poster_url : Storage::url($film->poster_url) }}" 
+                                 alt="{{ $film->title }}" 
+                                 class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-bold text-white text-lg mb-1 truncate group-hover:text-amber-500 transition-colors">{{ $film->title }}</h4>
+                            <p class="text-sm text-gray-400 mb-2 truncate">{{ $film->genres->pluck('name')->join(', ') }}</p>
+                            <div class="flex items-center space-x-3 text-xs text-gray-500">
+                                <span class="flex items-center">
+                                    <svg class="w-3 h-3 mr-1 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                    </svg>
+                                    {{ $film->rating ?? 'N/A' }}
+                                </span>
+                                <span>•</span>
+                                <span>{{ $film->duration }}m</span>
+                            </div>
                         </div>
                     </div>
                 @empty
-                    <p class="text-gray-400 text-center py-4">No films currently showing</p>
+                    <div class="text-center py-12 border-2 border-dashed border-slate-800 rounded-xl">
+                        <p class="text-gray-500">No films currently showing</p>
+                    </div>
                 @endforelse
             </div>
         </div>
 
         {{-- Coming Soon --}}
-        <div class="bg-slate-800 rounded-xl shadow-2xl shadow-black/50 border border-slate-700 p-6">
-            <h3 class="text-xl font-semibold text-white mb-4">Coming Soon</h3>
+        <div class="bg-slate-900 rounded-2xl shadow-2xl shadow-black/30 border border-slate-800 p-8">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-white flex items-center">
+                    <span class="w-2 h-2 bg-amber-500 rounded-full mr-3 animate-pulse"></span>
+                    Coming Soon
+                </h3>
+                <a href="{{ route('admin.films.index') }}" class="text-sm text-amber-500 hover:text-amber-400 font-semibold transition-colors">View All &rarr;</a>
+            </div>
             <div class="space-y-4">
                 @forelse($comingSoonFilms as $film)
-                    <div class="flex items-center space-x-4 p-3 bg-slate-700/50 rounded-lg hover:bg-slate-700 transition-colors">
-                        <img src="{{ Str::startsWith($film->poster_url, 'http') ? $film->poster_url : Storage::url($film->poster_url) }}" 
-                             alt="{{ $film->title }}" 
-                             class="w-16 h-24 object-cover rounded">
-                        <div class="flex-1">
-                            <h4 class="font-semibold text-white">{{ $film->title }}</h4>
-                            <p class="text-sm text-gray-400">{{ $film->genres->pluck('name')->join(', ') }}</p>
+                    <div class="group flex items-center space-x-4 p-4 bg-slate-800/50 rounded-xl border border-slate-700/50 hover:bg-slate-800 hover:border-amber-500/50 transition-all duration-300 hover:transform hover:translate-x-2">
+                        <div class="relative w-16 h-24 flex-shrink-0 rounded-lg overflow-hidden shadow-lg opacity-75 group-hover:opacity-100 transition-opacity">
+                            <img src="{{ Str::startsWith($film->poster_url, 'http') ? $film->poster_url : Storage::url($film->poster_url) }}" 
+                                 alt="{{ $film->title }}" 
+                                 class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-bold text-white text-lg mb-1 truncate group-hover:text-amber-500 transition-colors">{{ $film->title }}</h4>
+                            <p class="text-sm text-gray-400 mb-2 truncate">{{ $film->genres->pluck('name')->join(', ') }}</p>
+                            <div class="flex items-center space-x-3 text-xs text-gray-500">
+                                <span class="bg-slate-700 px-2 py-0.5 rounded text-gray-300">{{ $film->release_date->format('d M Y') }}</span>
+                            </div>
                         </div>
                     </div>
                 @empty
-                    <p class="text-gray-400 text-center py-4">No upcoming films</p>
+                    <div class="text-center py-12 border-2 border-dashed border-slate-800 rounded-xl">
+                        <p class="text-gray-500">No upcoming films</p>
+                    </div>
                 @endforelse
             </div>
         </div>

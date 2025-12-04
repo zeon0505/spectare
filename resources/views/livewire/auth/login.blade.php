@@ -9,6 +9,12 @@
     <p class="subtitle">Masuk kembali untuk melanjutkan petualangan sinematik Anda bersama Spectare.</p>
 
     <form wire:submit.prevent="login">
+        @if (session()->has('error'))
+            <div style="background-color: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <!-- Email -->
         <div class="form-group">
             <label for="email">Email</label>
