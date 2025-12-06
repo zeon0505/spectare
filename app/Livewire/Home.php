@@ -12,8 +12,8 @@ class Home extends Component
 
     public function mount()
     {
-        $this->nowShowingFilms = Film::where('status', 'now showing')->get();
-        $this->comingSoonFilms = Film::where('status', 'coming soon')->get();
+        $this->nowShowingFilms = Film::where('status', 'Now Playing')->get();
+        $this->comingSoonFilms = Film::where('status', 'Coming Soon')->get();
     }
 
     public function render()

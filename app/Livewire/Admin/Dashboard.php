@@ -98,7 +98,7 @@ class Dashboard extends Component
         $totalRevenue = $ticketRevenue + $snackRevenue;
         
         $activeShows = Showtime::where('date', '>=', Carbon::today())->count();
-        $nowShowingFilms = Film::with('genres')->where('status', 'Now Showing')->take(2)->get();
+        $nowShowingFilms = Film::with('genres')->where('status', 'Now Playing')->take(2)->get();
         $comingSoonFilms = Film::with('genres')->where('status', 'Coming Soon')->take(2)->get();
 
         return view('livewire.admin.dashboard', [

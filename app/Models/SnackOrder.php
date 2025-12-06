@@ -16,7 +16,17 @@ class SnackOrder extends Model
         'user_id',
         'total_price',
         'status',
+        'voucher_id',
+        'discount_amount',
     ];
+
+    /**
+     * Get the voucher associated with the snack order.
+     */
+    public function voucher(): BelongsTo
+    {
+        return $this->belongsTo(Voucher::class);
+    }
 
     /**
      * Get the user that owns the snack order.

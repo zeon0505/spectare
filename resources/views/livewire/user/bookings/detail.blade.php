@@ -92,7 +92,18 @@
                             <div class="h-px bg-slate-700"></div>
                             <div class="flex justify-between">
                                 <span class="text-gray-400">Total Price:</span>
-                                <span class="font-bold text-amber-500 text-lg">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</span>
+                                @if($booking->discount_amount > 0)
+                                    <div class="flex flex-col items-end">
+                                        <span class="text-gray-400 line-through text-xs">
+                                            Rp {{ number_format($booking->total_price, 0, ',', '.') }}
+                                        </span>
+                                        <span class="font-bold text-amber-500 text-lg">
+                                            Rp {{ number_format($booking->total_price - $booking->discount_amount, 0, ',', '.') }}
+                                        </span>
+                                    </div>
+                                @else
+                                    <span class="font-bold text-amber-500 text-lg">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</span>
+                                @endif
                             </div>
                             <div class="h-px bg-slate-700"></div>
                             <div class="flex justify-between items-center">

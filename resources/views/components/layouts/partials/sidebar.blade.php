@@ -157,6 +157,10 @@
                                 class="menu-item {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }} block px-4 py-2 rounded-lg transition-all duration-300 text-sm">
                                 Reviews
                             </a>
+                            <a href="{{ route('admin.vouchers.index') }}" wire:navigate
+                                class="menu-item {{ request()->routeIs('admin.vouchers.*') ? 'active' : '' }} block px-4 py-2 rounded-lg transition-all duration-300 text-sm">
+                                Vouchers
+                            </a>
                         </div>
                     </div>
 

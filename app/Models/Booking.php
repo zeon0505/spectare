@@ -13,7 +13,7 @@ class Booking extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $fillable = ['user_id', 'showtime_id', 'booking_code', 'status', 'total_price', 'qr_code_path'];
+    protected $fillable = ['user_id', 'showtime_id', 'booking_code', 'status', 'total_price', 'qr_code_path', 'voucher_id', 'discount_amount'];
 
     // Accessor for qr_code - reads SVG from storage
     public function getQrCodeAttribute()
@@ -32,6 +32,11 @@ class Booking extends Model
             Storage::disk('public')->put($path, $value);
             $this->attributes['qr_code_path'] = $path;
         }
+    }
+
+    public function voucher()
+    {
+        return $this->belongsTo(Voucher::class);
     }
 
     public function user()

@@ -24,6 +24,12 @@ class Create extends Component
     public $totalPrice;
     public $snapToken;
     public $filmDetails;
+    
+    // Voucher properties
+    public $voucherCode;
+    public $appliedVoucher = null;
+    public $discountAmount = 0;
+    public $finalTotal;
 
     public function mount(Showtime $showtime)
     {
@@ -41,6 +47,62 @@ class Create extends Component
         $this->showtime = $showtime->load('film');
         $this->selectedSeats = $bookingDetails['seats'];
         $this->totalPrice = $bookingDetails['total_price'];
+        $this->finalTotal = $this->totalPrice; // Initialize final total
+    }
+
+    public function applyVoucher()
+    {
+        $this->reset(['appliedVoucher', 'discountAmount']);
+        $this->finalTotal = $this->totalPrice;
+
+        if (empty($this->voucherCode)) {
+            $this->addError('voucherCode', 'Harap masukkan kode voucher.');
+            return;
+        }
+
+        $voucher = \App\Models\Voucher::where('code', $this->voucherCode)->active()->first();
+
+        if (!$voucher || !$voucher->isValid()) {
+            $this->addError('voucherCode', 'Kode voucher tidak valid atau sudah habis/kadaluarsa.');
+            return;
+        }
+
+        if (!$voucher->isEligibleForUser(Auth::id())) {
+            $this->addError('voucherCode', 'Anda sudah pernah menggunakan voucher ini sebelumnya.');
+            return;
+        }
+
+        if ($this->totalPrice < $voucher->min_purchase) {
+            $this->addError('voucherCode', 'Minimal pembelian untuk voucher ini adalah Rp ' . number_format($voucher->min_purchase, 0, ',', '.'));
+            return;
+        }
+
+        // Calculate Discount
+        if ($voucher->type === 'fixed') {
+            $this->discountAmount = $voucher->amount;
+        } else {
+            $discount = ($this->totalPrice * $voucher->amount) / 100;
+            if ($voucher->max_discount && $discount > $voucher->max_discount) {
+                $discount = $voucher->max_discount;
+            }
+            $this->discountAmount = $discount;
+        }
+
+        // Ensure discount doesn't exceed total
+        if ($this->discountAmount > $this->totalPrice) {
+            $this->discountAmount = $this->totalPrice;
+        }
+
+        $this->finalTotal = $this->totalPrice - $this->discountAmount;
+        $this->appliedVoucher = $voucher;
+
+        session()->flash('success_voucher', 'Voucher berhasil digunakan! Hemat Rp ' . number_format($this->discountAmount, 0, ',', '.'));
+    }
+
+    public function removeVoucher()
+    {
+        $this->reset(['voucherCode', 'appliedVoucher', 'discountAmount']);
+        $this->finalTotal = $this->totalPrice;
     }
 
     public function confirmBooking()
@@ -85,15 +147,39 @@ class Create extends Component
 
         DB::beginTransaction();
         try {
-            // Use the consistently calculated total price
-            $totalPrice = $this->showtime->film->ticket_price * count($this->selectedSeats);
+            // Use the consistently calculated total price AND applying voucher
+            $baseTotal = $this->showtime->film->ticket_price * count($this->selectedSeats);
+            
+            // Re-validate voucher in case it expired while sitting on page
+            $voucherId = null;
+            $discountAmount = 0;
+            $finalPrice = $baseTotal;
+
+            if ($this->appliedVoucher) {
+                // Refresh voucher instance to check quota constraints again in transaction
+                $voucher = \App\Models\Voucher::where('id', $this->appliedVoucher->id)->lockForUpdate()->first();
+                if ($voucher && $voucher->isValid()) {
+                    $voucherId = $voucher->id;
+                    $discountAmount = $this->discountAmount;
+                    $finalPrice = $this->finalTotal;
+                    
+                    // Decrement quota
+                    $voucher->decrement('quota');
+                } else {
+                    // Voucher no longer valid, fallback to normal price? 
+                    // Or throw error? Better to throw error to inform user.
+                    throw new \Exception("Voucher tidak lagi valid saat diproses.");
+                }
+            }
 
             $booking = Booking::create([
                 'user_id' => $user->id,
                 'showtime_id' => $this->showtime->id,
                 'booking_code' => 'BOOK-' . strtoupper(uniqid()),
-                'total_price' => $totalPrice, // Use calculated price
+                'total_price' => $baseTotal, // Store base price
                 'status' => 'pending',
+                'voucher_id' => $voucherId, // Store voucher
+                'discount_amount' => $discountAmount, // Store discount
             ]);
 
             foreach ($this->selectedSeats as $seatNumber) {
@@ -104,7 +190,7 @@ class Create extends Component
             $transaction = Transaction::create([
                 'booking_id' => $booking->id,
                 'user_id' => $user->id,
-                'amount' => $totalPrice,
+                'amount' => $finalPrice, // Transaction amount is the FINAL price
                 'transaction_date' => now(),
                 'status' => 'pending',
                 'payment_token' => $orderId,
@@ -119,22 +205,34 @@ class Create extends Component
 
 
 
+            // Prepare Midtrans items
+            $midtransItems = [[
+                'id' => $this->showtime->film->id,
+                'price' => $this->showtime->film->ticket_price,
+                'quantity' => count($this->selectedSeats),
+                'name' => 'Tickets for ' . $this->showtime->film->title
+            ]];
+
+            if ($discountAmount > 0) {
+                $midtransItems[] = [
+                    'id' => 'voucher-discount',
+                    'price' => -(int) $discountAmount,
+                    'quantity' => 1,
+                    'name' => 'Voucher Discount',
+                ];
+            }
+
             $midtrans_params = [
                 'transaction_details' => [
                     'order_id' => $orderId,
-                    'gross_amount' => $totalPrice, // Use calculated price
+                    'gross_amount' => (int) $finalPrice, // Use FINAL price
                 ],
                 'customer_details' => [
                     'first_name' => $firstName,
                     'last_name' => $lastName,
                     'email' => $user->email,
                 ],
-                'item_details' => [[
-                    'id' => $this->showtime->film->id,
-                    'price' => $this->showtime->film->ticket_price,
-                    'quantity' => count($this->selectedSeats),
-                    'name' => 'Tickets for ' . $this->showtime->film->title
-                ]],
+                'item_details' => $midtransItems,
             ];
 
             // Log the parameters being sent to Midtrans

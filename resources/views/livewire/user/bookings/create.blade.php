@@ -35,7 +35,45 @@
                                 @endforeach
                             </div>
                             <p class="mt-2"><strong>Jumlah Tiket:</strong> {{ count($selectedSeats) }}</p>
-                            <p class="text-lg">Total Price: <span class="font-bold text-amber-400">Rp {{ number_format($totalPrice, 0, ',', '.') }}</span></p>
+                            
+                            <!-- Voucher Section -->
+                            <div class="mt-4 pt-4 border-t border-gray-700">
+                                <label class="block text-sm font-medium mb-2">Kode Voucher</label>
+                                <div class="flex space-x-2">
+                                    <input wire:model="voucherCode" type="text" class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5 uppercase" placeholder="Masukkan kode">
+                                    <button wire:click="applyVoucher" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm px-4 py-2">Gunakan</button>
+                                </div>
+                                @error('voucherCode') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                @if (session()->has('success_voucher'))
+                                    <span class="text-green-400 text-xs mt-1 block">{{ session('success_voucher') }}</span>
+                                @endif
+
+                                @if($appliedVoucher)
+                                    <div class="mt-2 text-sm bg-indigo-900/50 p-2 rounded flex justify-between items-center border border-indigo-700">
+                                        <span>
+                                            <span class="font-bold text-amber-400">{{ $appliedVoucher->code }}</span> applied
+                                        </span>
+                                        <button wire:click="removeVoucher" class="text-red-400 hover:text-red-300 text-xs underline">Hapus</button>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <div class="mt-4 pt-4 border-t border-gray-700 space-y-1">
+                                <div class="flex justify-between">
+                                    <span>Subtotal:</span>
+                                    <span>Rp {{ number_format($totalPrice, 0, ',', '.') }}</span>
+                                </div>
+                                @if($discountAmount > 0)
+                                    <div class="flex justify-between text-green-400">
+                                        <span>Diskon:</span>
+                                        <span>-Rp {{ number_format($discountAmount, 0, ',', '.') }}</span>
+                                    </div>
+                                @endif
+                                <div class="flex justify-between text-lg font-bold border-t border-gray-700 pt-2 mt-2">
+                                    <span>Total Bayar:</span>
+                                    <span class="text-amber-400">Rp {{ number_format($finalTotal ?? $totalPrice, 0, ',', '.') }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

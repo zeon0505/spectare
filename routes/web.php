@@ -175,6 +175,10 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->prefix('admin')->
     // ⚙️ Settings
     Route::get('/settings/site', \App\Livewire\Admin\Settings\SiteSettings::class)->name('settings.site');
     Route::get('/content/featured', \App\Livewire\Admin\Content\FeaturedFilms::class)->name('content.featured');
+    // 🎟️ Vouchers
+    Route::get('/vouchers', \App\Livewire\Admin\Vouchers\Index::class)->name('vouchers.index');
+    Route::get('/vouchers/create', \App\Livewire\Admin\Vouchers\Upsert::class)->name('vouchers.create');
+    Route::get('/vouchers/{id}/edit', \App\Livewire\Admin\Vouchers\Upsert::class)->name('vouchers.edit');
 });
 
 //

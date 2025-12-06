@@ -49,9 +49,20 @@
                                         </span>
                                     </div>
 
-                                    <p class="text-amber-400 font-bold text-2xl">
-                                        Rp {{ number_format($booking->total_price, 0, ',', '.') }}
-                                    </p>
+                                    @if($booking->discount_amount > 0)
+                                        <div class="flex flex-col items-start lg:items-end">
+                                            <span class="text-gray-400 line-through text-sm">
+                                                Rp {{ number_format($booking->total_price, 0, ',', '.') }}
+                                            </span>
+                                            <p class="text-amber-400 font-bold text-2xl">
+                                                Rp {{ number_format($booking->total_price - $booking->discount_amount, 0, ',', '.') }}
+                                            </p>
+                                        </div>
+                                    @else
+                                        <p class="text-amber-400 font-bold text-2xl">
+                                            Rp {{ number_format($booking->total_price, 0, ',', '.') }}
+                                        </p>
+                                    @endif
                                 </div>
                             </div>
 
